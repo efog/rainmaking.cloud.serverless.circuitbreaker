@@ -21,16 +21,6 @@ resource "aws_iam_role" "circuitbreaker_functions_role" {
   assume_role_policy = data.aws_iam_policy_document.circuitbreaker_functions_assumerole_policy.json
 }
 
-resource "aws_lambda_function" "circuitbreaker_upstream_function" {
-  filename         = "functions/.build/src/out/upstream-handler.zip"
-  function_name    = "circuitbreaker_upstream_function"
-  handler          = "index.handler"
-  layers           = [aws_lambda_layer_version.circuitbreaker_lambda_layer.arn]
-  role             = aws_iam_role.circuitbreaker_functions_role.arn
-  runtime          = "nodejs18.x"
-  source_code_hash = filebase64sha256("functions/.build/src/out/upstream-handler.zip")
-}
-
 resource "aws_lambda_function" "circuitbreaker_downstream_function" {
   filename         = "functions/.build/src/out/downstream-handler.zip"
   function_name    = "circuitbreaker_downstream_function"
@@ -49,4 +39,10 @@ resource "aws_lambda_function" "circuitbreaker_healthcheck_function" {
   role             = aws_iam_role.circuitbreaker_functions_role.arn
   runtime          = "nodejs18.x"
   source_code_hash = filebase64sha256("functions/.build/src/out/healthcheck-handler.zip")
+}
+
+module "circuitbroke_lambda_function" {
+  source = "../module"
+  downstream_lambda_function = aws_lambda_function.circuitbreaker_downstream_function
+  healthcheck_lambda_function = aws_lambda_function.circuitbreaker_healthcheck_function
 }
