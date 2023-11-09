@@ -6,11 +6,14 @@ if [ -d "$BUILDDIR" ]; then
     echo "Build directory exists"
     rm -rf $BUILDDIR
 fi
-cp -r src $BUILDDIR
-cd $BUILDDIR
+
+mkdir $BUILDDIR
+rsync -av --exclude='src/node_modules' src $BUILDDIR
+
+cd $BUILDDIR/src
 
 npm install --omit-dev
-npx tsc -p tsconfig.json --outDir "$OUTDIR"
+npx tsc -p tsconfig.json --outDir out
 
 for f in $OUTDIR/*; do
     echo "Zipping $f"

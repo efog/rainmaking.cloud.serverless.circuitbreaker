@@ -1,0 +1,5 @@
+{
+    "terraform.codelens.referenceCount": true,
+    "terraform.experimentalFeatures.prefillRequiredFields": true,
+    "terraform.experimentalFeatures.validateOnSave": false
+}
