@@ -1,5 +1,5 @@
 variable "circuitbreakable_service_name" {
-  default = "circuitbreakable_service"
+  default = "a_service"
   type    = string
 }
 

@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "circuitbreaker_sfn_statemachine_functions_assume
 }
 
 resource "aws_iam_role" "circuitbreaker_sfn_statemachine_functions_role" {
-  name               = "iam_for_lambda"
+  name               = "circuitbreaker_statemachine_functions_role"
   assume_role_policy = data.aws_iam_policy_document.circuitbreaker_sfn_statemachine_functions_assumerole_policy.json
 }
 
@@ -59,6 +59,41 @@ resource "aws_iam_role" "circuitbreaker_sfn_statemachine_role" {
 
 resource "aws_sfn_state_machine" "circuitbreaker_sfn_statemachine" {
   name       = "${var.circuitbreakable_service_name}_circuitbreaker_statemachine"
-  definition = "value"
+  definition = <<EOF
+{
+  "comment": "A circuit breaker scaffold for ${var.circuitbreakable_service_name}",
+  "startAt": "upstream function",
+  "states": {
+    "upstream function": {
+      "inputPath": "$",
+      "outputPath": "$",
+      "next": "is circuit closed",
+      "parameters": {"serviceName.$": "${var.circuitbreakable_service_name}"}, 
+      "resource": "${aws_lambda_function.circuitbreaker_upstream_statemachine_function.arn}",
+      "resultPath": "$.isCircuitClosed",
+      "type": "task"
+    },
+    "is circuit closed": {
+      "type": "choice",
+      "default": "fail invocation"
+      "choices": [
+        {
+          "variable": "$.isCircuitClosed",
+          "booleanEquals": true,
+          "next": "downstream function"
+        }
+      ] 
+    },
+    "downstream function": {
+      "end": true,
+      "inputPath": "$",
+      "outputPath": "$",
+      "resource": "${var.downstream_lambda_function.arn}",
+      "type": "task"
+    }
+  }
+}
+EOF
   role_arn   = aws_iam_role.circuitbreaker_sfn_statemachine_role.arn
+  type       = "EXPRESS"
 }

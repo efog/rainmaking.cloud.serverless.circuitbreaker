@@ -5,6 +5,6 @@ export const handler: Handler = async (event, context) => {
     console.log('CONTEXT: \n' + JSON.stringify(context, null, 2));
     return {
         statusCode: 200,
-        body: JSON.stringify({"message": "Hello World!"}),
+        body: JSON.stringify({"isCircuitClosed": true}),
     };
 };

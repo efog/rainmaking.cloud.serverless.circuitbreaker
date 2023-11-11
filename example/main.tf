@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "circuitbreaker_functions_assumerole_policy" {
 }
 
 resource "aws_iam_role" "circuitbreaker_functions_role" {
-  name               = "iam_for_lambda"
+  name               = "circuitbreaker_example_service_functions_role"
   assume_role_policy = data.aws_iam_policy_document.circuitbreaker_functions_assumerole_policy.json
 }
 
@@ -42,7 +42,8 @@ resource "aws_lambda_function" "circuitbreaker_healthcheck_function" {
 }
 
 module "circuitbroke_lambda_function" {
-  source = "../module"
-  downstream_lambda_function = aws_lambda_function.circuitbreaker_downstream_function
-  healthcheck_lambda_function = aws_lambda_function.circuitbreaker_healthcheck_function
+  circuitbreakable_service_name = "example_service"
+  source                        = "../module"
+  downstream_lambda_function    = aws_lambda_function.circuitbreaker_downstream_function
+  healthcheck_lambda_function   = aws_lambda_function.circuitbreaker_healthcheck_function
 }
