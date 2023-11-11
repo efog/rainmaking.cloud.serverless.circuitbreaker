@@ -3,6 +3,11 @@ variable "circuitbreakable_service_name" {
   type    = string
 }
 
+variable "stack_id" {
+  type = string
+  
+}
+
 variable "downstream_lambda_function" {
   type = object(
     {
