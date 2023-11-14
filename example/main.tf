@@ -1,5 +1,38 @@
+locals {
+  circuitbreakable_service_name = "example_service"
+}
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 resource "random_id" "stack_id" {
   byte_length = 8
+}
+
+resource "aws_cloudwatch_log_group" "circuitbreaker_healthcheck_function_loggroup" {
+  name              = "/aws/lambda/circuitbreaker_healthcheck_function_${random_id.stack_id.hex}"
+  retention_in_days = 1
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
+resource "aws_cloudwatch_log_group" "circuitbreaker_downstream_function_loggroup" {
+  name              = "/aws/lambda/circuitbreaker_downstream_function_${random_id.stack_id.hex}"
+  retention_in_days = 1
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
+resource "aws_dynamodb_table" "circuitbreaker_services_table" {
+  name         = "circuitbreaker_services_table_${random_id.stack_id.hex}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "serviceName"
+  attribute {
+    name = "serviceName"
+    type = "S"
+  }
 }
 
 resource "aws_lambda_layer_version" "circuitbreaker_lambda_layer" {
@@ -25,10 +58,26 @@ resource "aws_iam_role" "circuitbreaker_functions_role" {
   assume_role_policy = data.aws_iam_policy_document.circuitbreaker_functions_assumerole_policy.json
 }
 
+resource "aws_iam_policy_attachment" "circuitbreaker_functions_role_attachments" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  ])
+  name       = "circuitbreaker_functions_role_attachments_attachments_${each.key}"
+  policy_arn = each.value
+  roles      = [aws_iam_role.circuitbreaker_functions_role.name]
+}
+
+resource "aws_iam_policy_attachment" "circuitbreaker_functions_role_basiclambdaexecution_attachment" {
+  name       = "circuitbreaker_functions_role_basiclambdaexecution_attachment"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  roles      = [aws_iam_role.circuitbreaker_functions_role.name]
+}
+
 resource "aws_lambda_function" "circuitbreaker_downstream_function" {
+  depends_on       = [aws_cloudwatch_log_group.circuitbreaker_downstream_function_loggroup]
   filename         = "functions/.build/src/out/downstream-handler.zip"
   function_name    = "circuitbreaker_downstream_function_${random_id.stack_id.hex}"
-  handler          = "index.handler"
+  handler          = "out/downstream-handler/index.handler"
   layers           = [aws_lambda_layer_version.circuitbreaker_lambda_layer.arn]
   role             = aws_iam_role.circuitbreaker_functions_role.arn
   runtime          = "nodejs18.x"
@@ -36,9 +85,10 @@ resource "aws_lambda_function" "circuitbreaker_downstream_function" {
 }
 
 resource "aws_lambda_function" "circuitbreaker_healthcheck_function" {
+  depends_on       = [aws_cloudwatch_log_group.circuitbreaker_healthcheck_function_loggroup]
   filename         = "functions/.build/src/out/healthcheck-handler.zip"
   function_name    = "circuitbreaker_healthcheck_function_${random_id.stack_id.hex}"
-  handler          = "index.handler"
+  handler          = "out/healthcheck-handler/index.handler"
   layers           = [aws_lambda_layer_version.circuitbreaker_lambda_layer.arn]
   role             = aws_iam_role.circuitbreaker_functions_role.arn
   runtime          = "nodejs18.x"
@@ -51,4 +101,5 @@ module "circuitbroke_lambda_function" {
   stack_id                      = random_id.stack_id.hex
   downstream_lambda_function    = aws_lambda_function.circuitbreaker_downstream_function
   healthcheck_lambda_function   = aws_lambda_function.circuitbreaker_healthcheck_function
+  circuitbreaker_services_table = aws_dynamodb_table.circuitbreaker_services_table
 }
