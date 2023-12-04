@@ -9,6 +9,15 @@ resource "random_id" "stack_id" {
   byte_length = 8
 }
 
+resource "aws_ssm_parameter" "service_state_paramater" {
+  name  = "serviceState"
+  type  = "String"
+  value = "OK"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
 resource "aws_cloudwatch_log_group" "circuitbreaker_healthcheck_function_loggroup" {
   name              = "/aws/lambda/circuitbreaker_healthcheck_function_${random_id.stack_id.hex}"
   retention_in_days = 1
@@ -53,17 +62,37 @@ data "aws_iam_policy_document" "circuitbreaker_functions_assumerole_policy" {
   }
 }
 
+data "aws_iam_policy_document" "circuitbreaker_functions_permissions_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["ssm:GetParameter"]
+    resources = [aws_ssm_parameter.service_state_paramater.arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "circuitbreaker_functions_permissions_policy" {
+  policy = data.aws_iam_policy_document.circuitbreaker_functions_permissions_policy.json
+  name   = "circuitbreaker_functions_permissions_policy"
+}
+
 resource "aws_iam_role" "circuitbreaker_functions_role" {
   name               = "circuitbreaker_example_service_functions_role_${random_id.stack_id.hex}"
   assume_role_policy = data.aws_iam_policy_document.circuitbreaker_functions_assumerole_policy.json
 }
 
 resource "aws_iam_policy_attachment" "circuitbreaker_functions_role_attachments" {
-  for_each = toset([
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  ])
-  name       = "circuitbreaker_functions_role_attachments_attachments_${each.key}"
-  policy_arn = each.value
+
+  name       = "circuitbreaker_functions_role_attachments_attachments"
+  policy_arn = aws_iam_policy.circuitbreaker_functions_permissions_policy.arn
   roles      = [aws_iam_role.circuitbreaker_functions_role.name]
 }
 

@@ -1,30 +1,3 @@
-# data "aws_iam_policy_document" "healthcheck_scheduled_invocation_lambda_topic_subscription_policy_document" {
-#   statement {
-#     actions = ["sns:Publish"]
-#     effect  = "Allow"
-#     principals {
-#       type        = "Service"
-#       identifiers = ["cloudwatch.amazonaws.com"]
-#     }
-#     resources = [ aws_sns_topic.healthcheck_scheduled_invocation_monitoring_alarm_topic.arn ]
-#     condition {
-#       test     = "ArnLike"
-#       variable = "SourceArn"
-#       values   = ["arn:aws:cloudwatch:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:alarm:*"]
-#     }
-#     condition {
-#       test = "StringEquals"
-#       variable = "aws:SourceAccount"
-#       values = [ data.aws_caller_identity.current.account_id ]
-#     }
-#   }
-# }
-
-# resource "aws_sns_topic_policy" "healthcheck_scheduled_invocation_monitoring_alarm_topic_policy" {
-#   arn = aws_sns_topic.healthcheck_scheduled_invocation_monitoring_alarm_topic.arn
-#   policy = data.aws_iam_policy_document.healthcheck_scheduled_invocation_lambda_topic_subscription_policy_document.json
-# }
-
 # resource "aws_sns_topic_subscription" "healthcheck_scheduled_invocation_monitoring_alarm_topic_sub" {
 #   topic_arn            = aws_sns_topic.healthcheck_scheduled_invocation_monitoring_alarm_topic.arn
 #   protocol             = "lambda"
