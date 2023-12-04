@@ -1,15 +1,3 @@
-# resource "aws_sns_topic_subscription" "healthcheck_scheduled_invocation_monitoring_alarm_topic_sub" {
-#   topic_arn            = aws_sns_topic.healthcheck_scheduled_invocation_monitoring_alarm_topic.arn
-#   protocol             = "lambda"
-#   endpoint             = var.healthcheck_lambda_function.arn
-#   raw_message_delivery = false
-# }
-
-# resource "aws_sns_topic" "healthcheck_scheduled_invocation_monitoring_alarm_topic" {
-#   name   = "${var.circuitbreakable_service_name}healthcheck_scheduled_invocation_monitoring_alarm_topic_${var.stack_id}"
-# }
-
-
 data "aws_iam_policy_document" "healthcheck_scheduled_invocation_event_target_role_assume_policy_document" {
   statement {
     effect = "Allow"
