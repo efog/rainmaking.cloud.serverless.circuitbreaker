@@ -12,21 +12,23 @@ resource "aws_sns_topic" "circuitbreaker_circuitalarm_invocation_monitoring_alar
 resource "aws_cloudwatch_metric_alarm" "circuitbreaker_healthcheck_invocation_monitoring_alarm" {
   alarm_name        = "AWS/Lambda Errors FunctionName=${var.healthcheck_lambda_function.function_name}"
   alarm_description = "This alarm detects healthy healthchecks."
-  actions_enabled   = true
+  actions_enabled   = var.healthcheck_monitoring_configuration.actions_enabled
   alarm_actions     = ["${aws_sns_topic.circuitbreaker_circuitalarm_invocation_monitoring_alarm_topic.arn}"]
   ok_actions        = ["${aws_sns_topic.circuitbreaker_circuitalarm_invocation_monitoring_alarm_topic.arn}"]
-  metric_name       = "Errors"
+  metric_name       = var.healthcheck_monitoring_configuration.metric_name
   namespace         = "AWS/Lambda"
-  statistic         = "Sum"
-  period            = 60
+  statistic         = var.healthcheck_monitoring_configuration.statistic
+  period            = var.healthcheck_monitoring_configuration.period
   dimensions = {
-    FunctionName = var.healthcheck_lambda_function.function_name
+    # Resource = "${var.healthcheck_lambda_function.arn}:${var.healthcheck_lambda_function.version}"
+    FunctionName = var.healthcheck_monitoring_configuration.dimensions.FunctionName
+    # ExecutedVersion      = var.healthcheck_monitoring_configuration.dimensions.Version
   }
-  evaluation_periods  = 1
-  datapoints_to_alarm = 1
-  threshold           = 1
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  treat_missing_data  = "notBreaching"
+  evaluation_periods  = var.healthcheck_monitoring_configuration.evaluation_periods
+  datapoints_to_alarm = var.healthcheck_monitoring_configuration.datapoints_to_alarm
+  threshold           = var.healthcheck_monitoring_configuration.threshold
+  comparison_operator = var.healthcheck_monitoring_configuration.comparison_operator
+  treat_missing_data  = var.healthcheck_monitoring_configuration.treat_missing_data
 }
 
 ##
@@ -35,20 +37,21 @@ resource "aws_cloudwatch_metric_alarm" "circuitbreaker_healthcheck_invocation_mo
 resource "aws_cloudwatch_metric_alarm" "circuitbreaker_downstream_invocation_monitoring_alarm" {
   alarm_name        = "AWS/Lambda Errors FunctionName=${var.downstream_lambda_function.function_name}"
   alarm_description = "This alarm detects high error counts. Errors includes the exceptions thrown by the code as well as exceptions thrown by the Lambda runtime. You can check the logs related to the function to diagnose the issue."
-  actions_enabled   = true
+  actions_enabled   = var.downstream_monitoring_configuration.actions_enabled
   alarm_actions     = ["${aws_sns_topic.circuitbreaker_circuitalarm_invocation_monitoring_alarm_topic.arn}"]
-  metric_name       = "Errors"
+  metric_name       = var.downstream_monitoring_configuration.metric_name
   namespace         = "AWS/Lambda"
-  statistic         = "Sum"
-  period            = 60
+  statistic         = var.downstream_monitoring_configuration.statistic
+  period            = var.downstream_monitoring_configuration.period
   dimensions = {
-    FunctionName = var.downstream_lambda_function.function_name
+    FunctionName = var.downstream_monitoring_configuration.dimensions.FunctionName
+    # Version      = var.downstream_monitoring_configuration.dimensions.Version
   }
-  evaluation_periods  = 3
-  datapoints_to_alarm = 3
-  threshold           = 1
-  comparison_operator = "GreaterThanThreshold"
-  treat_missing_data  = "notBreaching"
+  evaluation_periods  = var.downstream_monitoring_configuration.evaluation_periods
+  datapoints_to_alarm = var.downstream_monitoring_configuration.datapoints_to_alarm
+  threshold           = var.downstream_monitoring_configuration.threshold
+  comparison_operator = var.downstream_monitoring_configuration.comparison_operator
+  treat_missing_data  = var.downstream_monitoring_configuration.treat_missing_data
 }
 
 ##

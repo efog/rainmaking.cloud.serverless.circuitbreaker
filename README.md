@@ -1,12 +1,12 @@
 # Implement a Circuit Breaker for AWS Lambda Functions
 
-Micro services are bound with challenges. Being by nature loosely coupled,  micro-sevices are inherently adding complexity to the error handling, Several error handling architectural patterns can help and the circuit breaker is one of them. 
+Micro services are bound with challenges. Being by nature loosely coupled,  they are, for example, require specific error handling patterns and the circuit breaker is one of them. 
 
 What is provided here is a usable implementation of the circuit breaker pattern using Terraform, Amazon StepFunction, AWS Lambda, Amazon DynamoDB and Amazon EventBridge.
 
 ## The Circuit Breaker Pattern
 
-The circuit breaker pattern is a failure isolation mechanism. During maintenance, network outages or transient downtime it might be wiser to rapidly fail instead of spending useless cycles. A good example is payment handling on transactional websites. These rely on external payment services and when transacgtions are bound to fail because of uncontrolled circumstances, it's just better for a customer to be told quickly that a payment can't be processed than leaving them in the dark for a minute. Properly applied this pattern prevents unnecessary requests and processing thus saving on time, resources, and frustration.
+The circuit breaker pattern is a failure isolation mechanism. During maintenance, network outages or transient downtime it might be wiser to rapidly fail instead of spending on useless cycles. A good example is payment handling on transactional websites. These often rely on external payment services and when transacgtions are bound to fail because of uncontrolled circumstances, it's just better for a customer to be told quickly that a payment can't be processed than leaving them in the dark for a minute. Properly applied this pattern prevents unnecessary requests and processing thus saving on time, resources, and frustration.
 
 ## Understanding the Pattern
 
@@ -64,8 +64,46 @@ Receives Amazon Cloudwatch alarm events and forwards them to subscriptions, in t
 
 ### Using the Module
 
+The module comes with its pre-built Lambda Functions for the upstream and circuit alarm handling. The module's consumer needs to provide:
+
+- Downstream and Healthcheck Lambda Functions
+- Circuit State management Amazon DynamoDB table
+
+#### Building the Lambda Functions
+
+Head to the [functions folder](functions) of the module and launch the *build.sh* script. The module uses the NodeJS 18 runtime.
+
+#### Module Configuration
+
+The module has these key variables that require configuration:
+
+- *circuitbreakable_service_name*
+
+    The name of the service that is circuit breaking enabled.
+
+- *downstream_lambda_function*
+
+    The downstream AWS Lambda Function which is the target of the circuit breaker module.
+
+- *healthcheck_lambda_function*
+
+    The healthchecking AWS Lambda function.
+
+- *downstream_monitoring_configuration* and *healthcheck_monitoring_configuration*
+
+    Configures healthcheck and downstream functions monitoring settings.
+
 ## Not So Frequently Asked Questions
 
-1. Why not monitor the Step Function state machine instead of the Lambda Functions?
 1. Does it support AWS Lambda Function versioning?
-1. Are the monitoring thresholds configurable?
+
+    No, not yet. I'm still trying to iron this one out...
+
+1. Is resource tagging enabled?
+
+    No, it's on the wanted list.
+
+## How Much Does it Cost?
+
+
+## Lessons Learned

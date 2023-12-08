@@ -131,4 +131,34 @@ module "circuitbroke_lambda_function" {
   downstream_lambda_function    = aws_lambda_function.circuitbreaker_downstream_function
   healthcheck_lambda_function   = aws_lambda_function.circuitbreaker_healthcheck_function
   circuitbreaker_services_table = aws_dynamodb_table.circuitbreaker_services_table
+  downstream_monitoring_configuration = {
+    actions_enabled = true
+    comparison_operator = "GreaterThanOrEqualToThreshold"
+    datapoints_to_alarm = 3
+    dimensions = {
+      FunctionName = aws_lambda_function.circuitbreaker_downstream_function.function_name
+      Version = aws_lambda_function.circuitbreaker_downstream_function.version
+    }
+    evaluation_periods = 3
+    metric_name = "Errors"
+    period = 60
+    statistic = "Sum"
+    threshold = 1
+    treat_missing_data = "notBreaching"
+  }
+  healthcheck_monitoring_configuration = {
+    actions_enabled = true
+    comparison_operator = "GreaterThanOrEqualToThreshold"
+    datapoints_to_alarm = 1
+    dimensions = {
+      FunctionName = aws_lambda_function.circuitbreaker_healthcheck_function.function_name
+      Version = aws_lambda_function.circuitbreaker_healthcheck_function.version
+    }
+    evaluation_periods = 1
+    metric_name = "Errors"
+    period = 60
+    statistic = "Sum"
+    threshold = 1
+    treat_missing_data = "notBreaching"
+  }
 }
