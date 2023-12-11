@@ -80,25 +80,25 @@ The module comes with its pre-built Lambda Functions for the upstream and circui
 
 #### Building the Lambda Functions
 
-Head to the [functions folder](functions) of the module and launch the *build.sh* script. The module uses the NodeJS 18 runtime.
+Head to the [functions folder](functions) of the module and launch the build.sh script. The module uses the NodeJS 18 runtime.
 
 #### Module Configuration
 
 The module has these key variables that require configuration:
 
-- *circuitbreakable_service_name*
+- circuitbreakable_service_name
 
     The name of the service that is circuit breaking enabled.
 
-- *downstream_lambda_function*
+- downstream_lambda_function
 
     The downstream AWS Lambda Function which is the target of the circuit breaker module.
 
-- *healthcheck_lambda_function*
+- healthcheck_lambda_function
 
     The healthchecking AWS Lambda function.
 
-- *downstream_monitoring_configuration* and *healthcheck_monitoring_configuration*
+- downstream_monitoring_configuration and healthcheck_monitoring_configuration
 
     Configures healthcheck and downstream functions monitoring settings.
 
@@ -139,4 +139,4 @@ The module has these key variables that require configuration:
 
 - Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 USD per month.
 
-So all in all, it costs *0.26 USD per month* and *0.000045 USD per 100 requests*.
+So all in all, it costs 0.26 USD per month and 0.000045 USD per 100 requests.
