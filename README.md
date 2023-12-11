@@ -1,6 +1,6 @@
-![Heading](https://assets.rainmaking.cloud/images/kid_wires_bowtie_2_out.png)
+![Heading](https://assets.rainmaking.cloud/images/kid_wires_bowtie_2_out_small.png)
 
-# Implement a Circuit Breaker for AWS Lambda Functions using a Terraform Module
+# Build an efficient, scalable and serverless circuit breaker using Lambda and Step Functions
 
 Micro services are bound with challenges. Being by nature loosely coupled,  they are, for example, require specific error handling patterns and the circuit breaker is one of them. 
 
@@ -19,6 +19,13 @@ Simply explained, the pattern can be implemented as a state machine which checks
 A key to the pattern is proper health monitoring of the aforementionned downstream service and circuit state management:
 
 ![medium](https://assets.rainmaking.cloud/images/circuit-breaker-hl-diagram-2-3.png "healthcheck flow diagram")
+
+## Tangible Benefits
+
+Other than the benefits of the pattern in itself, this implementation provides other tangible benefits:
+
+- Because it is entirely serverless, scalability is not an issue. Moreover, core Lambda functions wrapped by this pattern can use any type of provisioning strategies (for concurrency and performance needs).
+- Because this implementation wraps around core functions, when properly used it allows developers to focus on the business requirements rather than the plumbing. Whenever implementing patterns, look at reusability from the Infrastructure as Code point of view. Yes pattern do help on several non-functional requirements but reducing the amount of plumbing is a great way to improve implementations at little costs.
 
 ## Implementing the Pattern
 
@@ -114,22 +121,22 @@ The module has these key variables that require configuration:
     - Estimations based on a per 100 requests.
     - 2 x Lambda Invokes = 200 invocations
     - 128MB RAM / 100ms per invocation (200 x 128MB/1024 x 0.1) = 2.5GBs
-    - 0.00001667 $ / GBs = 2.5 x 0.00001667 $ = 0.00004 $ / 100 requests.
+    - 0.00001667 USD / GBs = 2.5 x 0.00001667 USD = 0.00004 USD / 100 requests.
 
     0.00004 per 100 requests.
 
     AWS Step Functions:
 
     - Estimations based on per 100 requests.
-    - 0.0001 $ / 100 requests
-    - 128MB RAM / 200ms per invocation (100 x 128MB/1024 x 0.2) x 0.0000002083 $ = 0.000005 $ / 100 requests.
+    - 0.0001 USD / 100 requests
+    - 128MB RAM / 200ms per invocation (100 x 128MB/1024 x 0.2) x 0.0000002083 USD = 0.000005 USD / 100 requests.
 
     0.000045 / 100 requests.
 
-- 1 alarm costs 0.10 $ per alarm metric: 2 x 0.10 $ = 0.20 $ per month.
+- 1 alarm costs 0.10 USD per alarm metric: 2 x 0.10 USD = 0.20 USD per month.
 
-- Scheduler costs 1.10 $ per million scheduled invocation: 30 x 24 x 60 / 1 000 000 x 1.10 = 0.05 $ per month.
+- Scheduler costs 1.10 USD per million scheduled invocation: 30 x 24 x 60 / 1 000 000 x 1.10 = 0.05 USD per month.
 
-- Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 $ per month.
+- Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 USD per month.
 
-So all in all, it costs **0.26 $ per month** and **0.000045 $ per 100 requests**.
+So all in all, it costs **0.26 USD per month** and **0.000045 USD per 100 requests**.
