@@ -1,3 +1,5 @@
+![Heading](https://assets.rainmaking.cloud/images/kid_wires_bowtie_2_out.png)
+
 # Implement a Circuit Breaker for AWS Lambda Functions
 
 Micro services are bound with challenges. Being by nature loosely coupled,  they are, for example, require specific error handling patterns and the circuit breaker is one of them. 
@@ -105,5 +107,29 @@ The module has these key variables that require configuration:
 
 ## How Much Does it Cost?
 
+- 1 request generates:
 
-## Lessons Learned
+    AWS Lambda: 
+
+    - Estimations based on a per 100 requests.
+    - 2 x Lambda Invokes = 200 invocations
+    - 128MB RAM / 100ms per invocation (200 x 128MB/1024 x 0.1) = 2.5GBs
+    - 0.00001667 $ / GBs = 2.5 x 0.00001667 $ = 0.00004 $ / 100 requests.
+
+    0.00004 per 100 requests.
+
+    AWS Step Functions:
+
+    - Estimations based on per 100 requests.
+    - 0.0001 $ / 100 requests
+    - 128MB RAM / 200ms per invocation (100 x 128MB/1024 x 0.2) x 0.0000002083 $ = 0.000005 $ / 100 requests.
+
+    0.000045 / 100 requests.
+
+- 1 alarm costs 0.10 $ per alarm metric: 2 x 0.10 $ = 0.20 $ per month.
+
+- Scheduler costs 1.10 $ per million scheduled invocation: 30 x 24 x 60 / 1 000 000 x 1.10 = 0.05 $ per month.
+
+- Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 $ per month.
+
+So all in all, it costs **0.26 $ per month** and **0.000045 $ per 100 requests**.
