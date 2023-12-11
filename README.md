@@ -139,4 +139,4 @@ The module has these key variables that require configuration:
 
 - Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 USD per month.
 
-So all in all, it costs **0.26 USD per month** and **0.000045 USD per 100 requests**.
+So all in all, it costs *0.26 USD per month* and *0.000045 USD per 100 requests*.
