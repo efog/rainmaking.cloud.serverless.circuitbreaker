@@ -1,6 +1,6 @@
 ![Heading](https://assets.rainmaking.cloud/images/kid_wires_bowtie_2_out.png)
 
-# Implement a Circuit Breaker for AWS Lambda Functions
+# Implement a Circuit Breaker for AWS Lambda Functions using a Terraform Module
 
 Micro services are bound with challenges. Being by nature loosely coupled,  they are, for example, require specific error handling patterns and the circuit breaker is one of them. 
 
