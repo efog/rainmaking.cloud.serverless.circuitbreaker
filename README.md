@@ -114,29 +114,33 @@ The module has these key variables that require configuration:
 
 ## How Much Does it Cost?
 
-- 1 request generates:
+### AWS Lambda: 
 
-    AWS Lambda: 
+- Estimations based on a per 100 requests.
+- 2 x Lambda Invokes = 200 invocations
+- 128MB RAM / 100ms per invocation (200 x 128MB/1024 x 0.1) = 2.5GBs
+- 0.00001667 USD / GBs = 2.5 x 0.00001667 USD = 0.00004 USD / 100 requests.
 
-    - Estimations based on a per 100 requests.
-    - 2 x Lambda Invokes = 200 invocations
-    - 128MB RAM / 100ms per invocation (200 x 128MB/1024 x 0.1) = 2.5GBs
-    - 0.00001667 USD / GBs = 2.5 x 0.00001667 USD = 0.00004 USD / 100 requests.
+0.00004 per 100 requests.
 
-    0.00004 per 100 requests.
+### AWS Step Functions:
 
-    AWS Step Functions:
+- Estimations based on per 100 requests.
+- 0.0001 USD / 100 requests
+- 128MB RAM / 200ms per invocation (100 x 128MB/1024 x 0.2) x 0.0000002083 USD = 0.000005 USD / 100 requests.
 
-    - Estimations based on per 100 requests.
-    - 0.0001 USD / 100 requests
-    - 128MB RAM / 200ms per invocation (100 x 128MB/1024 x 0.2) x 0.0000002083 USD = 0.000005 USD / 100 requests.
+0.000045 / 100 requests.
 
-    0.000045 / 100 requests.
+### Amazon CloudWatch
 
 - 1 alarm costs 0.10 USD per alarm metric: 2 x 0.10 USD = 0.20 USD per month.
+
+### Amazon EventBridge
 
 - Scheduler costs 1.10 USD per million scheduled invocation: 30 x 24 x 60 / 1 000 000 x 1.10 = 0.05 USD per month.
 
 - Scheduled healthcheck Lambda per month (128MB / 100ms): (30 x 24 x 60) x 128 / 1024 x 0.1 x 0.00001667 = 0.009 USD per month.
+
+### Total
 
 So all in all, it costs 0.26 USD per month and 0.000045 USD per 100 requests.
