@@ -8,7 +8,7 @@ What is provided here is a usable implementation of the circuit breaker pattern 
 
 ## The Circuit Breaker Pattern
 
-The circuit breaker pattern is a failure isolation mechanism. During maintenance, network outages or transient downtime it might be wiser to rapidly fail instead of spending on useless cycles. A good example is payment handling on transactional websites. These often rely on external payment services and when transacgtions are bound to fail because of uncontrolled circumstances, it's just better for a customer to be told quickly that a payment can't be processed than leaving them in the dark for a minute. Properly applied this pattern prevents unnecessary requests and processing thus saving on time, resources, and frustration.
+The circuit breaker pattern is a failure isolation mechanism. During maintenance, network outages or transient downtime it might be wiser to rapidly fail instead of spending on useless cycles. A good example is payment handling on transactional websites. These often rely on external payment services and when transactions are bound to fail because of uncontrolled circumstances, it's just better for a customer to be told quickly that a payment can't be processed than leaving them in the dark for a minute. Properly applied this pattern prevents unnecessary requests and processing thus saving on time, resources, and frustration.
 
 ## Understanding the Pattern
 
